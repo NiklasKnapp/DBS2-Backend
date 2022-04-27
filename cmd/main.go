@@ -1,15 +1,17 @@
 package main
 
 import (
-	"de.stuttgart.hft/DBS2-Backend/handler"
+	"net/http"
+
+	"de.stuttgart.hft/DBS2-Backend/pkg/routes"
 	"github.com/gin-gonic/gin"
 	//"database/sql"
-	//_ "github.com/mattn/go-sqlite3"
+	// _ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
 	r := gin.Default()
-	r.GET("/ping", handler.PingGet())
+	routes.RegisterManufacturerRoutes(r)
+	http.Handle("/", r)
 	r.Run(":8080")
-	//db, err := sql.Open("sqlite3", "./database.db")
 }
