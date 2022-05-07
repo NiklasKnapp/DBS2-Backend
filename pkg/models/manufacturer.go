@@ -14,7 +14,7 @@ type Manufacturer struct {
 	Name string `json:"name" binding:"required"`
 }
 
-func init() {
+func init() { //TODO: Check when init runs exactly -> if Connect() in main and GetDB() in init: panic -- if GetDB() in any other method all fine
 	config.Connect()
 	db = config.GetDB()
 }

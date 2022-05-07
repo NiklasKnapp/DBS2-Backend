@@ -10,7 +10,7 @@ var (
 	db *sql.DB
 )
 
-func Connect() {
+func Connect() { //TODO: add if db == nil
 	d, err := sql.Open("sqlite3", "../pkg/config/database.db")
 	if err != nil {
 		panic(err)
