@@ -19,5 +19,8 @@ func Connect() { //TODO: add if db == nil
 }
 
 func GetDB() *sql.DB {
+	if db == nil {
+		Connect()
+	}
 	return db
 }

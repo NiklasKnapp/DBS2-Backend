@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var NewManufacturer models.Manufacturer
+// var NewManufacturer models.Manufacturer
 
 func CreateManufacturer(c *gin.Context) {
 	CreateManufacturer := &models.Manufacturer{}
@@ -84,7 +84,6 @@ func UpdateManufacturer(c *gin.Context) {
 		return
 	}
 	utils.ApiSuccess(c, [][]string{}, m, 200)
-
 }
 
 func DeleteManufacturer(c *gin.Context) {

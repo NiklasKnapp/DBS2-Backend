@@ -1,22 +1,12 @@
 package models
 
 import (
-	"database/sql"
 	"fmt"
-
-	"de.stuttgart.hft/DBS2-Backend/pkg/config"
 )
-
-var db *sql.DB
 
 type Manufacturer struct {
 	M_id int    `json:"mId"`
 	Name string `json:"name" binding:"required"`
-}
-
-func init() { //TODO: Check when init runs exactly -> if Connect() in main and GetDB() in init: panic -- if GetDB() in any other method all fine
-	config.Connect()
-	db = config.GetDB()
 }
 
 func (m *Manufacturer) CreateManufacturer() (*Manufacturer, error) {
@@ -65,7 +55,7 @@ func GetManufacturerById(MId int64) (*Manufacturer, error) {
 func (m *Manufacturer) UpdateManufacturer() (*Manufacturer, error) {
 	_, err := db.Exec("UPDATE manufacturer SET name = ? WHERE m_id = ?;", m.Name, m.M_id)
 	if err != nil {
-		return nil, fmt.Errorf("GetManufacturerById: %v", err)
+		return nil, fmt.Errorf("UpdateManufacturer: %v", err)
 	}
 	return m, nil
 }
