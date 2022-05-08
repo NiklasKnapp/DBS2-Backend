@@ -59,10 +59,10 @@ func UpdateRollType(c *gin.Context) {
 		utils.ApiError(c, [][]string{{"bad.request", utils.GetEnvVar("ERROR_CODE_BODY_INVALID")}}, 400)
 		return
 	}
-	typeIdParam := c.Params.ByName(("typeId"))
+	typeIdParam := c.Params.ByName("typeId")
 	typeId, err := strconv.ParseInt(typeIdParam, 0, 0)
 	if err != nil {
-		log.Println("[STRCONV]: UpdateRollType: Could not parse manufacturer id: ", err)
+		log.Println("[STRCONV]: UpdateRollType: Could not parse rollType id: ", err)
 		utils.ApiError(c, [][]string{{"resource.notFound", utils.GetEnvVar("ERROR_RESOURCE_NOT_FOUND")}}, 404)
 		return
 	}

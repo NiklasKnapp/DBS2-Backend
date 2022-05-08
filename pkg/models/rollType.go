@@ -11,7 +11,7 @@ type RollType struct {
 
 func (rt *RollType) CreateRollType() (*RollType, error) {
 	//Validate if Manufacturer with M_id exists
-	m_id, _ := GetRollTypeById(int64(rt.M_id))
+	m_id, _ := GetManufacturerById(int64(rt.M_id))
 	if m_id == nil {
 		return nil, fmt.Errorf("CreateRollType: Manufacturer with m_id %v does not exist", rt.M_id)
 	}
