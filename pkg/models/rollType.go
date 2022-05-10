@@ -56,7 +56,7 @@ func GetRollTypeById(tId int64) (*RollType, error) {
 }
 
 func (rt *RollType) UpdateRollType() (*RollType, error) {
-	_, err := db.Exec("UPDATE roll_type SET stock_name = ? WHERE type_id = ?;", rt.StockName, rt.Type_id)
+	_, err := db.Exec("UPDATE roll_type SET stock_name = ?, size = ?, m_id = ? WHERE type_id = ?;", rt.StockName, rt.Format, rt.M_id, rt.Type_id)
 	if err != nil {
 		return nil, fmt.Errorf("UpdateRollType: %v", err)
 	}

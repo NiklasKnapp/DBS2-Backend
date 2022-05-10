@@ -75,6 +75,18 @@ func UpdateRollType(c *gin.Context) {
 	if updatedRollType.StockName != "" {
 		currentRollType.StockName = updatedRollType.StockName
 	}
+	if updatedRollType.Format != "" {
+		currentRollType.Format = updatedRollType.Format
+	}
+	if updatedRollType.M_id != 0 {
+		m_id, _ := models.GetManufacturerById(int64(updatedRollType.M_id))
+		if m_id == nil {
+			log.Printf("UpdateRollType: Manufacturer with m_id %v does not exist", updatedRollType.M_id)
+			utils.ApiError(c, [][]string{{"general.error", utils.GetEnvVar("ERROR_CODE_SERVER_ERROR")}}, 500)
+			return
+		}
+		currentRollType.M_id = updatedRollType.M_id
+	}
 	rt, _ := currentRollType.UpdateRollType()
 	if err != nil {
 		log.Println("[SQL]: ", err)
