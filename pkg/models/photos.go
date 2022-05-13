@@ -1,6 +1,9 @@
 package models
 
-import "fmt"
+import (
+	"fmt"
+	"mime/multipart"
+)
 
 type Photo struct {
 	Photo_id int    `json:"photoId"`
@@ -9,12 +12,23 @@ type Photo struct {
 	Roll_id  int    `json:"rollId" binding:"required"`
 }
 
-func (p *Photo) CreatePhoto() (*Photo, error) {
+type PhotoUpload struct {
+	Photo_id int                     `form:"photoid"`
+	UUID     string                  `form:"uuid"` //TODO: Change, so UUID is created and added serversided
+	Roll_id  int                     `form:"rollId" binding:"required"`
+	Files    []*multipart.FileHeader `form:"files" binding:"required"`
+}
+
+type PhotoUploadResponse struct {
+	PhotoUpload []PhotoUpload
+}
+
+func (p *PhotoUpload) CreatePhoto() (*PhotoUpload, error) {
 	roll_id, _ := GetFilmRollById(int64(p.Roll_id))
 	if roll_id == nil {
 		return nil, fmt.Errorf("CreatePhoto: FilmRoll with roll id %v does not exist", p.Roll_id)
 	}
-	res, err := db.Exec("INSERT INTO photos (title, uuid, roll_id) VALUES (?, ?, ?);", p.Title, p.UUID, p.Roll_id)
+	res, err := db.Exec("INSERT INTO photos (title, uuid, roll_id) VALUES (?, ?, ?);", "", p.UUID, p.Roll_id)
 	if err != nil {
 		return nil, fmt.Errorf("CreatePhoto: %v", err)
 	}

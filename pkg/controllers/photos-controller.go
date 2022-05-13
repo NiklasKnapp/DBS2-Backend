@@ -1,28 +1,61 @@
 package controllers
 
 import (
+	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 	"strconv"
 
 	"de.stuttgart.hft/DBS2-Backend/pkg/models"
 	"de.stuttgart.hft/DBS2-Backend/pkg/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
+//Find a way to import multiple photos with one call. Current error -> creating one "PhotoUpload" and trying to export multiple times i.e. multiple uuid rewrites
+//Mybe change method to single upload and call multiple timees?
 func CreatePhoto(c *gin.Context) {
-	newPhoto := &models.Photo{}
-	if err := c.ShouldBindJSON(newPhoto); err != nil {
-		log.Println("[JSON PARSING]: CreatePhoto: Could not map required fields")
+	newPhoto := &models.PhotoUpload{}
+	if err := c.ShouldBind(newPhoto); err != nil {
+		log.Println("[FORM PARSING]: CreatePhoto: Could not map required fields")
 		utils.ApiError(c, [][]string{{"bad.request", utils.GetEnvVar("ERROR_CODE_BODY_INVALID")}}, 400)
 		return
 	}
-	p, err := newPhoto.CreatePhoto()
+	//Save Files to server
+	form, err := c.MultipartForm()
 	if err != nil {
-		log.Println("[SQL]: ", err)
+		fmt.Println("CreatePhoto: MultipartForm could not be instantiated")
 		utils.ApiError(c, [][]string{{"general.error", utils.GetEnvVar("ERROR_CODE_SERVER_ERROR")}}, 500)
 		return
 	}
-	utils.ApiSuccess(c, [][]string{}, p, 200)
+	var collection = models.PhotoUploadResponse{}
+	formFiles, _ := form.File["files"]
+	for _, file := range formFiles {
+		newFileUpload := &models.PhotoUpload{}
+		extention := filepath.Ext(file.Filename)
+		newFileName := uuid.New().String() + extention
+		filename := "../pkg/tmp/" + newFileName
+		newFileUpload.UUID = newFileName
+		newFileUpload.Roll_id = newPhoto.Roll_id
+		newFileUpload.Files = append(newFileUpload.Files, file)
+		if err := c.SaveUploadedFile(file, filename); err != nil {
+			fmt.Println("CreatePhoto: Unable to upload Photo(s)")
+			utils.ApiError(c, [][]string{{"general.error", utils.GetEnvVar("ERROR_CODE_SERVER_ERROR")}}, 500)
+			return
+		}
+		log.Println("CreatePhoto: File Uploaded: ", newFileName)
+
+		p, err := newFileUpload.CreatePhoto()
+		if err != nil {
+			log.Println("[SQL]: ", err)
+			utils.ApiError(c, [][]string{{"general.error", utils.GetEnvVar("ERROR_CODE_SERVER_ERROR")}}, 500)
+			return
+		}
+		// collection = append(collection, p...)
+		collection.PhotoUpload = append(collection.PhotoUpload, *p)
+	}
+	utils.ApiSuccess(c, [][]string{}, collection, 200)
 }
 
 func GetPhoto(c *gin.Context) {
@@ -105,8 +138,19 @@ func DeletePhoto(c *gin.Context) {
 		utils.ApiError(c, [][]string{{"resource.notFound", utils.GetEnvVar("ERROR_RESOURCE_NOT_FOUND")}}, 404)
 		return
 	}
-	photo, err := models.DeletePhoto(photoId)
+	photo, err := models.GetPhotoById(photoId)
 	if err != nil {
+		log.Println("[SQL]: ", err)
+		utils.ApiError(c, [][]string{{"resource.notFound", utils.GetEnvVar("ERROR_RESOURCE_NOT_FOUND")}}, 404)
+		return
+	}
+	errr := os.Remove("../pkg/tmp/" + photo.UUID)
+	if errr != nil {
+		fmt.Println("DeletePhoto: Could not delete Photo from Server")
+		return
+	}
+	photo, er := models.DeletePhoto(photoId)
+	if er != nil {
 		log.Println("[SQL]: ", err)
 		utils.ApiError(c, [][]string{{"resource.notFound", utils.GetEnvVar("ERROR_RESOURCE_NOT_FOUND")}}, 404)
 		return
