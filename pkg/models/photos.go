@@ -60,6 +60,31 @@ func GetPhoto() ([]Photo, error) {
 	return photos, nil
 }
 
+func GetPhotosByRollId(rId int64) ([]Photo, error) {
+	var photos = []Photo{}
+	rows, err := db.Query("SELECT photo_id, title, uuid, roll_id FROM photos WHERE roll_id = ?;", rId)
+	if err != nil {
+		return nil, fmt.Errorf("GetPhotosByRollId: %v", err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var importetPhotos Photo
+		if err := rows.Scan(&importetPhotos.Photo_id, &importetPhotos.Title, &importetPhotos.UUID, &importetPhotos.Roll_id); err != nil {
+			return nil, fmt.Errorf("GetPhotosByRollId: %v", err)
+		}
+		photos = append(photos, importetPhotos)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("GetPhotosByRollId: %v", err)
+	}
+	return photos, nil
+	// photos := []Photo{}
+	// if err := db.QueryRow("SELECT photo_id, title, uuid, roll_id FROM photos WHERE roll_id = ?", rId).Scan(&photos.Photo_id, &photos.Title, &photos.UUID, &photos.Roll_id); err != nil {
+	// 	return nil, fmt.Errorf("GetPhotoById: %v", err)
+	// }
+	// return photos, nil
+}
+
 func GetPhotoById(pId int64) (*Photo, error) {
 	photo := &Photo{}
 	if err := db.QueryRow("SELECT photo_id, title, uuid, roll_id FROM photos WHERE photo_id = ?;", pId).Scan(&photo.Photo_id, &photo.Title, &photo.UUID, &photo.Roll_id); err != nil {

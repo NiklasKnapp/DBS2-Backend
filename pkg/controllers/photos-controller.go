@@ -83,7 +83,23 @@ func GetPhotoById(c *gin.Context) {
 		return
 	}
 	utils.ApiSuccess(c, [][]string{}, photo, 200)
+}
 
+func GetPhotosByRollId(c *gin.Context) {
+	rollIdParams := c.Params.ByName("roll_id")
+	rollId, err := strconv.ParseInt(rollIdParams, 0, 0)
+	if err != nil {
+		log.Println("[STRCONV]: GetPhotosByRollId: Could not parse roll id: ", err)
+		utils.ApiError(c, [][]string{{"resource.notFound", utils.GetEnvVar("ERROR_RESOURCE_NOT_FOUND")}}, 404)
+		return
+	}
+	photos, err := models.GetPhotosByRollId(rollId)
+	if err != nil {
+		log.Println("[SQL]: ", err)
+		utils.ApiError(c, [][]string{{"resource.notFound", utils.GetEnvVar("ERROR_RESOURCE_NOT_FOUND")}}, 404)
+		return
+	}
+	utils.ApiSuccess(c, [][]string{}, photos, 200)
 }
 
 func UpdatePhoto(c *gin.Context) {
