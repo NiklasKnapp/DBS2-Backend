@@ -78,11 +78,6 @@ func GetPhotosByRollId(rId int64) ([]Photo, error) {
 		return nil, fmt.Errorf("GetPhotosByRollId: %v", err)
 	}
 	return photos, nil
-	// photos := []Photo{}
-	// if err := db.QueryRow("SELECT photo_id, title, uuid, roll_id FROM photos WHERE roll_id = ?", rId).Scan(&photos.Photo_id, &photos.Title, &photos.UUID, &photos.Roll_id); err != nil {
-	// 	return nil, fmt.Errorf("GetPhotoById: %v", err)
-	// }
-	// return photos, nil
 }
 
 func GetPhotoById(pId int64) (*Photo, error) {

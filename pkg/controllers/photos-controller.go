@@ -2,7 +2,9 @@ package controllers
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -83,6 +85,45 @@ func GetPhotoById(c *gin.Context) {
 		return
 	}
 	utils.ApiSuccess(c, [][]string{}, photo, 200)
+}
+
+func GetPhotoData(c *gin.Context) {
+	// downloadPath := "../pkg/tmp/"
+	uuid := c.Params.ByName("uuid")
+
+	// targetPath := filepath.Join(downloadPath, uuid)
+
+	// c.Header("Content-Description", "File Transfer")
+	// c.Header("Content-Transfer-Encoding", "binary")
+	// c.Header("Content-Disposition", "attachment; filename="+uuid)
+	// c.Header("Content-Type", "image/jpeg")
+	// c.File(targetPath)
+
+	photoData, _ := ioutil.ReadFile("../pkg/tmp/" + uuid)
+	mimeType := http.DetectContentType(photoData)
+	c.Header("Content-Description", "File Transfer")
+	c.Header("Content-Transfer-Encoding", "binary")
+	c.Header("Content-Disposition", "attachment; filename="+uuid)
+	switch mimeType {
+	case "image/jpeg":
+		c.Header("Content-Type", "image/jpeg")
+	case "image/png":
+		c.Header("Content-Type", "image/png")
+	}
+	c.Writer.Write(photoData)
+
+	// photoData, _ := ioutil.ReadFile("../pkg/tmp/" + uuid)
+	// var base64Encoding string
+	// mimeType := http.DetectContentType(photoData)
+	// switch mimeType {
+	// case "image/jpeg":
+	// 	base64Encoding += "data:image/jpeg;base64,"
+	// case "image/png":
+	// 	base64Encoding += "data:image/png;base64,"
+	// }
+	// base64Encoding += base64.StdEncoding.EncodeToString(photoData)
+	// c.Writer.Write(photoData)
+
 }
 
 func GetPhotosByRollId(c *gin.Context) {
