@@ -60,6 +60,26 @@ func GetPhoto() ([]Photo, error) {
 	return photos, nil
 }
 
+func GetPhotoByTypeId(tId int64) ([]Photo, error) {
+	var photos = []Photo{}
+	rows, err := db.Query("SELECT photos.photo_id, photos.title, photos.uuid, photos.roll_id FROM photos INNER JOIN film_rolls ON photos.roll_id = film_rolls.roll_id WHERE film_rolls.type_id = ?;", tId)
+	if err != nil {
+		return nil, fmt.Errorf("GetPhotosByTypeId: %v", err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var importetPhotos Photo
+		if err := rows.Scan(&importetPhotos.Photo_id, &importetPhotos.Title, &importetPhotos.UUID, &importetPhotos.Roll_id); err != nil {
+			return nil, fmt.Errorf("GetPhotosByRollId: %v", err)
+		}
+		photos = append(photos, importetPhotos)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("GetPhotosByTypeId: %v", err)
+	}
+	return photos, nil
+}
+
 func GetPhotosByRollId(rId int64) ([]Photo, error) {
 	var photos = []Photo{}
 	rows, err := db.Query("SELECT photo_id, title, uuid, roll_id FROM photos WHERE roll_id = ?;", rId)

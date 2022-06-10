@@ -18,6 +18,9 @@ import (
 //Find a way to import multiple photos with one call. Current error -> creating one "PhotoUpload" and trying to export multiple times i.e. multiple uuid rewrites
 //Mybe change method to single upload and call multiple timees?
 func CreatePhoto(c *gin.Context) {
+
+	fmt.Printf("%#v\n", c.Request)
+
 	newPhoto := &models.PhotoUpload{}
 	if err := c.ShouldBind(newPhoto); err != nil {
 		log.Println("[FORM PARSING]: CreatePhoto: Could not map required fields")
@@ -70,6 +73,23 @@ func GetPhoto(c *gin.Context) {
 	utils.ApiSuccess(c, [][]string{}, photo, 200)
 }
 
+func GetPhotoByTypeId(c *gin.Context) {
+	typeIdParams := c.Params.ByName("type_id")
+	typeId, err := strconv.ParseInt(typeIdParams, 0, 0)
+	if err != nil {
+		log.Println("[STRCONV]: GetPhotoByTypeId: Could not parse type id: ", err)
+		utils.ApiError(c, [][]string{{"resource.notFound", utils.GetEnvVar("ERROR_RESOURCE_NOT_FOUND")}}, 404)
+		return
+	}
+	photo, err := models.GetPhotoByTypeId(typeId)
+	if err != nil {
+		log.Println("[SQL]: ", err)
+		utils.ApiError(c, [][]string{{"resource.notFound", utils.GetEnvVar("ERROR_RESOURCE_NOT_FOUND")}}, 404)
+		return
+	}
+	utils.ApiSuccess(c, [][]string{}, photo, 200)
+}
+
 func GetPhotoById(c *gin.Context) {
 	photoIdParams := c.Params.ByName("photo_id")
 	photoId, err := strconv.ParseInt(photoIdParams, 0, 0)
@@ -88,19 +108,10 @@ func GetPhotoById(c *gin.Context) {
 }
 
 func GetPhotoData(c *gin.Context) {
-	// downloadPath := "../pkg/tmp/"
 	uuid := c.Params.ByName("uuid")
-
-	// targetPath := filepath.Join(downloadPath, uuid)
-
-	// c.Header("Content-Description", "File Transfer")
-	// c.Header("Content-Transfer-Encoding", "binary")
-	// c.Header("Content-Disposition", "attachment; filename="+uuid)
-	// c.Header("Content-Type", "image/jpeg")
-	// c.File(targetPath)
-
 	photoData, _ := ioutil.ReadFile("../pkg/tmp/" + uuid)
 	mimeType := http.DetectContentType(photoData)
+
 	c.Header("Content-Description", "File Transfer")
 	c.Header("Content-Transfer-Encoding", "binary")
 	c.Header("Content-Disposition", "attachment; filename="+uuid)
@@ -110,6 +121,7 @@ func GetPhotoData(c *gin.Context) {
 	case "image/png":
 		c.Header("Content-Type", "image/png")
 	}
+
 	c.Writer.Write(photoData)
 
 	// photoData, _ := ioutil.ReadFile("../pkg/tmp/" + uuid)
