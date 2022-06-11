@@ -15,8 +15,6 @@ import (
 	"github.com/google/uuid"
 )
 
-//Find a way to import multiple photos with one call. Current error -> creating one "PhotoUpload" and trying to export multiple times i.e. multiple uuid rewrites
-//Mybe change method to single upload and call multiple timees?
 func CreatePhoto(c *gin.Context) {
 
 	fmt.Printf("%#v\n", c.Request)
