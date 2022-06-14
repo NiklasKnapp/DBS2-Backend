@@ -13,5 +13,6 @@ var RegisterPhotoRoutes = func(router *gin.Engine) {
 	router.GET("/photo/type/:type_id", controllers.GetPhotoByTypeId)
 	router.GET("/photodata/:uuid", controllers.GetPhotoData)
 	router.PUT("/photo/:photo_id", controllers.UpdatePhoto)
+	router.POST("/photo/rating", controller.CreateRating)
 	router.DELETE("/photo/:photo_id", controllers.DeletePhoto)
 }
