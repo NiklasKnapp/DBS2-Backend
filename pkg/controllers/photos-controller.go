@@ -179,6 +179,9 @@ func UpdatePhoto(c *gin.Context) {
 	if updatedPhoto.UUID != "" {
 		currentPhoto.UUID = updatedPhoto.UUID
 	}
+	if updatedPhoto.Rating != 0 {
+		currentPhoto.UUID = updatedPhoto.UUID
+	}
 	if updatedPhoto.Roll_id != 0 {
 		roll_id, _ := models.GetFilmRollById(int64(updatedPhoto.Roll_id))
 		if roll_id == nil {

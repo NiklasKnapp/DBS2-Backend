@@ -6,10 +6,11 @@ import (
 )
 
 type Photo struct {
-	Photo_id int    `json:"photoId"`
-	Title    string `json:"title"`
-	UUID     string `json:"uuid" binding:"required"`
-	Roll_id  int    `json:"rollId" binding:"required"`
+	Photo_id int     `json:"photoId"`
+	Title    string  `json:"title"`
+	UUID     string  `json:"uuid" binding:"required"`
+	Roll_id  int     `json:"rollId" binding:"required"`
+	Rating   float32 `json:"rating"`
 }
 
 type PhotoUpload struct {
@@ -42,14 +43,14 @@ func (p *PhotoUpload) CreatePhoto() (*PhotoUpload, error) {
 
 func GetPhoto() ([]Photo, error) {
 	var photos = []Photo{}
-	rows, err := db.Query("SELECT photo_id, title, uuid, roll_id FROM photos;")
+	rows, err := db.Query("SELECT photo_id, title, uuid, roll_id, rating FROM photos;")
 	if err != nil {
 		return nil, fmt.Errorf("GetPhoto: %v", err)
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var importedPhoto Photo
-		if err := rows.Scan(&importedPhoto.Photo_id, &importedPhoto.Title, &importedPhoto.UUID, &importedPhoto.Roll_id); err != nil {
+		if err := rows.Scan(&importedPhoto.Photo_id, &importedPhoto.Title, &importedPhoto.UUID, &importedPhoto.Roll_id, &importedPhoto.Rating); err != nil {
 			return nil, fmt.Errorf("GetPhoto: %v", err)
 		}
 		photos = append(photos, importedPhoto)
@@ -62,14 +63,14 @@ func GetPhoto() ([]Photo, error) {
 
 func GetPhotoByTypeId(tId int64) ([]Photo, error) {
 	var photos = []Photo{}
-	rows, err := db.Query("SELECT photos.photo_id, photos.title, photos.uuid, photos.roll_id FROM photos INNER JOIN film_rolls ON photos.roll_id = film_rolls.roll_id WHERE film_rolls.type_id = ?;", tId)
+	rows, err := db.Query("SELECT photos.photo_id, photos.title, photos.uuid, photos.roll_id photos.rating FROM photos INNER JOIN film_rolls ON photos.roll_id = film_rolls.roll_id WHERE film_rolls.type_id = ?;", tId)
 	if err != nil {
 		return nil, fmt.Errorf("GetPhotosByTypeId: %v", err)
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var importetPhotos Photo
-		if err := rows.Scan(&importetPhotos.Photo_id, &importetPhotos.Title, &importetPhotos.UUID, &importetPhotos.Roll_id); err != nil {
+		if err := rows.Scan(&importetPhotos.Photo_id, &importetPhotos.Title, &importetPhotos.UUID, &importetPhotos.Roll_id, &importetPhotos.Rating); err != nil {
 			return nil, fmt.Errorf("GetPhotosByRollId: %v", err)
 		}
 		photos = append(photos, importetPhotos)
@@ -82,14 +83,14 @@ func GetPhotoByTypeId(tId int64) ([]Photo, error) {
 
 func GetPhotosByRollId(rId int64) ([]Photo, error) {
 	var photos = []Photo{}
-	rows, err := db.Query("SELECT photo_id, title, uuid, roll_id FROM photos WHERE roll_id = ?;", rId)
+	rows, err := db.Query("SELECT photo_id, title, uuid, roll_id, rating FROM photos WHERE roll_id = ?;", rId)
 	if err != nil {
 		return nil, fmt.Errorf("GetPhotosByRollId: %v", err)
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var importetPhotos Photo
-		if err := rows.Scan(&importetPhotos.Photo_id, &importetPhotos.Title, &importetPhotos.UUID, &importetPhotos.Roll_id); err != nil {
+		if err := rows.Scan(&importetPhotos.Photo_id, &importetPhotos.Title, &importetPhotos.UUID, &importetPhotos.Roll_id, &importetPhotos.Rating); err != nil {
 			return nil, fmt.Errorf("GetPhotosByRollId: %v", err)
 		}
 		photos = append(photos, importetPhotos)
@@ -102,14 +103,14 @@ func GetPhotosByRollId(rId int64) ([]Photo, error) {
 
 func GetPhotoById(pId int64) (*Photo, error) {
 	photo := &Photo{}
-	if err := db.QueryRow("SELECT photo_id, title, uuid, roll_id FROM photos WHERE photo_id = ?;", pId).Scan(&photo.Photo_id, &photo.Title, &photo.UUID, &photo.Roll_id); err != nil {
+	if err := db.QueryRow("SELECT photo_id, title, uuid, roll_id, rating FROM photos WHERE photo_id = ?;", pId).Scan(&photo.Photo_id, &photo.Title, &photo.UUID, &photo.Roll_id, &photo.Rating); err != nil {
 		return nil, fmt.Errorf("GetPhotoById: %v", err)
 	}
 	return photo, nil
 }
 
 func (p *Photo) UpdatePhoto() (*Photo, error) {
-	_, err := db.Exec("UPDATE photos SET title = ?, uuid = ?, roll_id = ? WHERE photo_id = ?;", p.Title, p.UUID, p.Roll_id, p.Photo_id)
+	_, err := db.Exec("UPDATE photos SET title = ?, uuid = ?, roll_id = ?, rating = ? WHERE photo_id = ?;", p.Title, p.UUID, p.Roll_id, p.Rating, p.Photo_id)
 	if err != nil {
 		return nil, fmt.Errorf("UpdatePhoto: %v", err)
 	}

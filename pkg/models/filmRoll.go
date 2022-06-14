@@ -5,10 +5,11 @@ import (
 )
 
 type FilmRoll struct {
-	Roll_id     int    `json:"rollId"`
-	Title       string `json:"title" binding:"required"`
-	Description string `json:"description"`
-	Type_id     int    `json:"typeId" binding:"required"`
+	Roll_id     int     `json:"rollId"`
+	Title       string  `json:"title" binding:"required"`
+	Description string  `json:"description"`
+	Type_id     int     `json:"typeId" binding:"required"`
+	Rating      float32 `json:"rating"`
 }
 
 func (fr *FilmRoll) CreateRollType() (*FilmRoll, error) {
@@ -30,14 +31,14 @@ func (fr *FilmRoll) CreateRollType() (*FilmRoll, error) {
 
 func GetFilmRoll() ([]FilmRoll, error) {
 	var filmRolls = []FilmRoll{}
-	rows, err := db.Query("SELECT roll_id, title, text, type_id FROM film_rolls;")
+	rows, err := db.Query("SELECT roll_id, title, text, type_id, rating FROM film_rolls;")
 	if err != nil {
 		return nil, fmt.Errorf("GetFilmRoll: %v", err)
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var rolls FilmRoll
-		if err := rows.Scan(&rolls.Roll_id, &rolls.Title, &rolls.Description, &rolls.Type_id); err != nil {
+		if err := rows.Scan(&rolls.Roll_id, &rolls.Title, &rolls.Description, &rolls.Type_id, &rolls.Rating); err != nil {
 			return nil, fmt.Errorf("GetFilmRoll: %v", err)
 		}
 		filmRolls = append(filmRolls, rolls)
@@ -50,14 +51,14 @@ func GetFilmRoll() ([]FilmRoll, error) {
 
 func GetFilmRollById(rId int64) (*FilmRoll, error) {
 	roll := &FilmRoll{}
-	if err := db.QueryRow("SELECT roll_id, title, text, type_id FROM film_rolls WHERE roll_id = ?;", rId).Scan(&roll.Roll_id, &roll.Title, &roll.Description, &roll.Type_id); err != nil {
+	if err := db.QueryRow("SELECT roll_id, title, text, type_id, rating FROM film_rolls WHERE roll_id = ?;", rId).Scan(&roll.Roll_id, &roll.Title, &roll.Description, &roll.Type_id, &roll.Rating); err != nil {
 		return nil, fmt.Errorf("GetFilmRollById: %v", err)
 	}
 	return roll, nil
 }
 
 func (fr *FilmRoll) UpdateFilmRoll() (*FilmRoll, error) {
-	_, err := db.Exec("UPDATE film_rolls SET title = ?, text = ?, type_id = ? WHERE roll_id = ?;", fr.Title, fr.Description, fr.Type_id, fr.Roll_id)
+	_, err := db.Exec("UPDATE film_rolls SET title = ?, text = ?, type_id = ?, rating = ? WHERE roll_id = ?;", fr.Title, fr.Description, fr.Type_id, fr.Roll_id, fr.Rating)
 	if err != nil {
 		return nil, fmt.Errorf("UpdateFilmRoll: %v", err)
 	}

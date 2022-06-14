@@ -75,6 +75,9 @@ func UpdateFilmRoll(c *gin.Context) {
 	if updatedFilmRoll.Title != "" {
 		currentFilmRoll.Title = updatedFilmRoll.Title
 	}
+	if updatedFilmRoll.Rating != 0 {
+		currentFilmRoll.Rating = updatedFilmRoll.Rating
+	}
 	if updatedFilmRoll.Description != "" {
 		currentFilmRoll.Description = updatedFilmRoll.Description
 	}
