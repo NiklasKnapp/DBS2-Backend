@@ -10,13 +10,20 @@ import (
 )
 
 func CreateRating(c *gin.Context) {
+	log.Printf("test")
 	newRating := &models.Rating{}
 	if err := c.ShouldBindJSON(newRating); err != nil {
-		log.Println("[JSON PARSING]: CreateRating: Could not map required fields")
+		log.Println("[JSON PARSING]: CreateFilmRoll: Could not map required fields")
 		utils.ApiError(c, [][]string{{"bad.request", utils.GetEnvVar("ERROR_CODE_BODY_INVALID")}}, 400)
 		return
 	}
-	utils.ApiSuccess(c, [][]string{}, newRating, 200)
+	fr, err := newRating.CreateRating()
+	if err != nil {
+		log.Println("[SQL]: ", err)
+		utils.ApiError(c, [][]string{{"general.error", utils.GetEnvVar("ERROR_CODE_SERVER_ERROR")}}, 500)
+		return
+	}
+	utils.ApiSuccess(c, [][]string{}, fr, 200)
 }
 
 func GetRating(c *gin.Context) {
@@ -66,8 +73,8 @@ func UpdateRating(c *gin.Context) {
 		utils.ApiError(c, [][]string{{"resource.notFound", utils.GetEnvVar("ERROR_RESOURCE_NOT_FOUND")}}, 404)
 		return
 	}
-	if updatedRating.rating != 0 {
-		currentRating.rating = updatedRating.rating
+	if updatedRating.Rating != 0 {
+		currentRating.Rating = updatedRating.Rating
 	}
 	if updatedRating.Photo_id != 0 {
 		photo_id, _ := models.GetPhotoById(int64(updatedRating.Photo_id))

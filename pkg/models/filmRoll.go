@@ -26,6 +26,7 @@ func (fr *FilmRoll) CreateRollType() (*FilmRoll, error) {
 		return nil, fmt.Errorf("CreateRollType: %v", err)
 	}
 	fr.Roll_id = int(id)
+	fr.Rating = 0
 	return fr, nil
 }
 
