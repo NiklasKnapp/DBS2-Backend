@@ -6,7 +6,7 @@ import (
 
 type Rating struct {
 	Rating_id   int `json:"ratingId"`
-	Photo_id    int `json:"photoId" binding:"required"`
+	Photo_id    int `json:"photoId"`
 	Rating      int `json:"rating"`
 }
 

@@ -13,7 +13,7 @@ func CreateRating(c *gin.Context) {
 	log.Printf("test")
 	newRating := &models.Rating{}
 	if err := c.ShouldBindJSON(newRating); err != nil {
-		log.Println("[JSON PARSING]: CreateFilmRoll: Could not map required fields")
+		log.Println("[JSON PARSING]: CreateRating: Could not map required fields")
 		utils.ApiError(c, [][]string{{"bad.request", utils.GetEnvVar("ERROR_CODE_BODY_INVALID")}}, 400)
 		return
 	}

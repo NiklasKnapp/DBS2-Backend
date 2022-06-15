@@ -34,17 +34,31 @@ func (fr *FilmRoll) CreateRollType() (*FilmRoll, error) {
 
 func GetFilmRoll() ([]FilmRoll, error) {
 	var filmRolls = []FilmRoll{}
-	rows, err := db.Query("SELECT film_rolls.roll_id, film_rolls.title, film_rolls.text, film_rolls.type_id, film_rolls.rating, photos.uuid, MAX(photos.rating) FROM film_rolls INNER JOIN photos ON film_rolls.roll_id = photos.roll_id GROUP BY film_rolls.roll_id;")
+	rows, err := db.Query("SELECT film_rolls.roll_id, film_rolls.title, film_rolls.text, film_rolls.type_id, film_rolls.rating FROM film_rolls;")
 	if err != nil {
 		return nil, fmt.Errorf("GetFilmRoll: %v", err)
 	}
+	
 	defer rows.Close()
 	for rows.Next() {
 		var rolls FilmRoll
-		if err := rows.Scan(&rolls.Roll_id, &rolls.Title, &rolls.Description, &rolls.Type_id, &rolls.Rating, &rolls.Uuid, &rolls.Imagerating); err != nil {
+		if err := rows.Scan(&rolls.Roll_id, &rolls.Title, &rolls.Description, &rolls.Type_id, &rolls.Rating); err != nil {
 			return nil, fmt.Errorf("GetFilmRoll: %v", err)
 		}
-		filmRolls = append(filmRolls, rolls)
+		rolls.Uuid = ""
+		rolls.Imagerating = 0
+
+		row, err := db.Query("SELECT film_rolls.roll_id, film_rolls.title, film_rolls.text, film_rolls.type_id, film_rolls.rating, photos.uuid, MAX(photos.rating) FROM film_rolls LEFT JOIN photos ON film_rolls.roll_id = photos.roll_id GROUP BY film_rolls.roll_id HAVING film_rolls.roll_id = ?;", rolls.Roll_id)
+		if err != nil {
+			return nil, fmt.Errorf("GetFilmRoll: %v", err)
+		}
+		var roll FilmRoll
+		row.Next()
+		if err := row.Scan(&roll.Roll_id, &roll.Title, &roll.Description, &roll.Type_id, &roll.Rating, &roll.Uuid, &roll.Imagerating); err != nil {
+			filmRolls = append(filmRolls, rolls)
+		} else {
+			filmRolls = append(filmRolls, roll)
+		}
 	}
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("GetFilmRoll: %v", err)

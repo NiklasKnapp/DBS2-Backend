@@ -22,6 +22,8 @@ func main() {
 	routes.RegisterRollTypeRoutes(r)
 	routes.RegisterFilmRollRoutes(r)
 	routes.RegisterPhotoRoutes(r)
+	routes.RegisterAlbumRoutes(r)
+	routes.RegisterRatingRoutes(r)
 
 	http.Handle("/", r)
 	r.Run(":8080")
