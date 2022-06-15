@@ -10,6 +10,8 @@ type FilmRoll struct {
 	Description string  `json:"description"`
 	Type_id     int     `json:"typeId" binding:"required"`
 	Rating      float32 `json:"rating"`
+	Uuid        string  `json:"uuid"`
+	Imagerating float32 `json:"imageRating"`
 }
 
 func (fr *FilmRoll) CreateRollType() (*FilmRoll, error) {
@@ -32,14 +34,14 @@ func (fr *FilmRoll) CreateRollType() (*FilmRoll, error) {
 
 func GetFilmRoll() ([]FilmRoll, error) {
 	var filmRolls = []FilmRoll{}
-	rows, err := db.Query("SELECT roll_id, title, text, type_id, rating FROM film_rolls;")
+	rows, err := db.Query("SELECT film_rolls.roll_id, film_rolls.title, film_rolls.text, film_rolls.type_id, film_rolls.rating, photos.uuid, MAX(photos.rating) FROM film_rolls INNER JOIN photos ON film_rolls.roll_id = photos.roll_id GROUP BY film_rolls.roll_id;")
 	if err != nil {
 		return nil, fmt.Errorf("GetFilmRoll: %v", err)
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var rolls FilmRoll
-		if err := rows.Scan(&rolls.Roll_id, &rolls.Title, &rolls.Description, &rolls.Type_id, &rolls.Rating); err != nil {
+		if err := rows.Scan(&rolls.Roll_id, &rolls.Title, &rolls.Description, &rolls.Type_id, &rolls.Rating, &rolls.Uuid, &rolls.Imagerating); err != nil {
 			return nil, fmt.Errorf("GetFilmRoll: %v", err)
 		}
 		filmRolls = append(filmRolls, rolls)
