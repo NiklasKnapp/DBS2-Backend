@@ -11,4 +11,5 @@ var RegisterAlbumRoutes = func(router *gin.Engine) {
 	router.GET("/album/:albId", controllers.GetAlbumById)
 	router.PUT("/album/:albId", controllers.UpdateAlbum)
 	router.DELETE("/album/:albId", controllers.DeleteAlbum)
+	router.POST("/photos_album/", controllers.Photos_Album)
 }

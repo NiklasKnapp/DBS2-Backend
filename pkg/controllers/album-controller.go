@@ -16,6 +16,7 @@ func CreateAlbum(c *gin.Context) {
 		utils.ApiError(c, [][]string{{"bad.request", utils.GetEnvVar("ERROR_CODE_BODY_INVALID")}}, 400)
 		return
 	}
+	
 	utils.ApiSuccess(c, [][]string{}, newAlbum, 200)
 }
 
@@ -99,4 +100,20 @@ func DeleteAlbum(c *gin.Context) {
 		return
 	}
 	utils.ApiSuccess(c, [][]string{}, album, 200)
+}
+
+func Photos_Album(c *gin.Context) {
+	newpa := &models.PA{}
+	if err := c.ShouldBindJSON(newpa); err != nil {
+		log.Println("[JSON PARSING]: CreateAlbum: Could not map required fields")
+		utils.ApiError(c, [][]string{{"bad.request", utils.GetEnvVar("ERROR_CODE_BODY_INVALID")}}, 400)
+		return
+	}
+	pa, err := newpa.CreatePA()
+	if err != nil {
+		log.Println("[SQL]: ", err)
+		utils.ApiError(c, [][]string{{"general.error", utils.GetEnvVar("ERROR_CODE_SERVER_ERROR")}}, 500)
+		return
+	}
+	utils.ApiSuccess(c, [][]string{}, pa, 200)
 }

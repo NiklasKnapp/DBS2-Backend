@@ -11,12 +11,10 @@ import (
 
 func CreateRating(c *gin.Context) {
 	newRating := &models.RatingRaw{}
-	if err := c.ShouldBindJSON(newRating); err != nil {
-		log.Println(err)
-		log.Println("[JSON PARSING]: CreateRating: Could not map required fields")
-		utils.ApiError(c, [][]string{{"bad.request", utils.GetEnvVar("ERROR_CODE_BODY_INVALID")}}, 400)
-		return
-	}
+
+	newRating.Photo_id = c.PostForm("photoId")
+	newRating.Rating = c.PostForm("rating")
+	
 	log.Println(newRating.Photo_id)
 	fr, err := newRating.CreateRating()
 	if err != nil {

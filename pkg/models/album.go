@@ -5,12 +5,17 @@ import (
 )
 
 type Album struct {
-	Album_id     int     `json:"albId"`
+	Album_id     int     `json:"albumId"`
 	Title       string  `json:"title" binding:"required"`
 	Description string  `json:"description"`
 	Rating      float32 `json:"rating"`
 	Uuid        string  `json:"uuid"`
 	Imagerating float32 `json:"imageRating"`
+}
+
+type PA struct {
+	Album_id   int  `json:"albumId"`
+	Photo_id   int  `json:"photoId`
 }
 
 func GetAlbum() ([]Album, error) {
@@ -70,4 +75,20 @@ func DeleteAlbum(rId int64) (*Album, error) {
 		return nil, fmt.Errorf("DeleteAlbum: %v", err)
 	}
 	return album, nil
+}
+
+func (fr *PA) CreatePA() (*PA, error) {
+	photo_id, _ := GetPhotoById(int64(fr.Photo_id))
+	if photo_id == nil {
+		return nil, fmt.Errorf("CreatePA: Photo with photo_id %v does not exist", fr.Photo_id)
+	}
+	album_id, _ := GetAlbumById(int64(fr.Album_id))
+	if album_id == nil {
+		return nil, fmt.Errorf("CreatePA: Album with album_id %v does not exist", fr.Album_id)
+	}
+	_, err := db.Exec("INSERT INTO photos_albums (photo_id, album_id) VALUES(?, ?);", fr.Photo_id, fr.Album_id)
+	if err != nil {
+		return nil, fmt.Errorf("CreatePA: %v", err)
+	}
+	return fr, nil
 }
