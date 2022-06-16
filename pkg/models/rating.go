@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"strconv"
 )
 
 type Rating struct {
@@ -10,12 +11,21 @@ type Rating struct {
 	Rating      int `json:"rating"`
 }
 
-func (r *Rating) CreateRating() (*Rating, error) {
-	photo_id, _ := GetPhotoById(int64(r.Photo_id))
+type RatingRaw struct {
+	Photo_id    string `json:"photoId"`
+	Rating      string `json:"rating"`
+}
+
+func (r *RatingRaw) CreateRating() (*Rating, error) {
+	newRating := &Rating{}
+	newRating.Photo_id, _ = strconv.Atoi(r.Photo_id)
+	newRating.Rating, _ = strconv.Atoi(r.Rating)
+
+	photo_id, _ := GetPhotoById(int64(newRating.Photo_id))
 	if photo_id == nil {
-		return nil, fmt.Errorf("CreateRating: Photo with photo id %v does not exist", r.Photo_id)
+		return nil, fmt.Errorf("CreateRating: Photo with photo id %v does not exist", newRating.Photo_id)
 	}
-	res, err := db.Exec("INSERT INTO ratings (photo_id, rating) VALUES (?, ?);", "", r.Photo_id, r.Rating)
+	res, err := db.Exec("INSERT INTO ratings (photo_id, rating) VALUES (?, ?);", "", newRating.Photo_id, newRating.Rating)
 	if err != nil {
 		return nil, fmt.Errorf("CreateRating: %v", err)
 	}
@@ -23,8 +33,9 @@ func (r *Rating) CreateRating() (*Rating, error) {
 	if id, err = res.LastInsertId(); err != nil {
 		return nil, fmt.Errorf("CreateRating: %v", err)
 	}
-	r.Rating_id = int(id)
-	return r, nil
+	newRating.Rating_id = int(id)
+
+	return newRating, nil
 }
 
 func GetRating() ([]Rating, error) {
