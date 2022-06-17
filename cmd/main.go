@@ -11,13 +11,17 @@ import (
 	// _ "github.com/mattn/go-sqlite3"
 )
 
+//Main
 func main() {
+
+	//Initialize Gin
 	r := gin.New()
 	r.Use(gin.Logger())
 	r.Use(gin.CustomRecovery(utils.RequestRecovery))
 
 	config.Connect()
 
+	//Register Routes
 	routes.RegisterManufacturerRoutes(r)
 	routes.RegisterRollTypeRoutes(r)
 	routes.RegisterFilmRollRoutes(r)
@@ -25,6 +29,7 @@ func main() {
 	routes.RegisterAlbumRoutes(r)
 	routes.RegisterRatingRoutes(r)
 
+	//Run
 	http.Handle("/", r)
 	r.Run(":8080")
 }

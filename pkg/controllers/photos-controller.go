@@ -14,17 +14,19 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
-
+ // Create photo
 func CreatePhoto(c *gin.Context) {
 
-	fmt.Printf("%#v\n", c.Request)
-
+	// Upload new photo
 	newPhoto := &models.PhotoUpload{}
+
+	// Bind values to photo
 	if err := c.ShouldBind(newPhoto); err != nil {
 		log.Println("[FORM PARSING]: CreatePhoto: Could not map required fields")
 		utils.ApiError(c, [][]string{{"bad.request", utils.GetEnvVar("ERROR_CODE_BODY_INVALID")}}, 400)
 		return
 	}
+
 	//Save Files to server
 	form, err := c.MultipartForm()
 	if err != nil {
@@ -49,6 +51,7 @@ func CreatePhoto(c *gin.Context) {
 		}
 		log.Println("CreatePhoto: File Uploaded: ", newFileName)
 
+		// Create photo in DB
 		p, err := newFileUpload.CreatePhoto()
 		if err != nil {
 			log.Println("[SQL]: ", err)
@@ -61,7 +64,10 @@ func CreatePhoto(c *gin.Context) {
 	utils.ApiSuccess(c, [][]string{}, collection, 200)
 }
 
+// Get photos
 func GetPhoto(c *gin.Context) {
+
+	// Get photos from DB
 	photo, err := models.GetPhoto()
 	if err != nil {
 		log.Println("[SQL]: ", err)
@@ -71,14 +77,21 @@ func GetPhoto(c *gin.Context) {
 	utils.ApiSuccess(c, [][]string{}, photo, 200)
 }
 
+// Get photos by type ID
 func GetPhotoByTypeId(c *gin.Context) {
+
+	// Get type ID from request
 	typeIdParams := c.Params.ByName("type_id")
+
+	// Parse ID
 	typeId, err := strconv.ParseInt(typeIdParams, 0, 0)
 	if err != nil {
 		log.Println("[STRCONV]: GetPhotoByTypeId: Could not parse type id: ", err)
 		utils.ApiError(c, [][]string{{"resource.notFound", utils.GetEnvVar("ERROR_RESOURCE_NOT_FOUND")}}, 404)
 		return
 	}
+
+	// Get photos from DB
 	photo, err := models.GetPhotoByTypeId(typeId)
 	if err != nil {
 		log.Println("[SQL]: ", err)
@@ -88,14 +101,21 @@ func GetPhotoByTypeId(c *gin.Context) {
 	utils.ApiSuccess(c, [][]string{}, photo, 200)
 }
 
+//Get photo by ID
 func GetPhotoById(c *gin.Context) {
+
+	// Get photo ID from request
 	photoIdParams := c.Params.ByName("photo_id")
+
+	// Parse ID
 	photoId, err := strconv.ParseInt(photoIdParams, 0, 0)
 	if err != nil {
 		log.Println("[STRCONV]: GetPhotoById: Could not parse photo id: ", err)
 		utils.ApiError(c, [][]string{{"resource.notFound", utils.GetEnvVar("ERROR_RESOURCE_NOT_FOUND")}}, 404)
 		return
 	}
+
+	// Get photo from DB
 	photo, err := models.GetPhotoById(photoId)
 	if err != nil {
 		log.Println("[SQL]: ", err)
@@ -105,8 +125,13 @@ func GetPhotoById(c *gin.Context) {
 	utils.ApiSuccess(c, [][]string{}, photo, 200)
 }
 
+// Get data from photo
 func GetPhotoData(c *gin.Context) {
+
+	// Get UUID from requests
 	uuid := c.Params.ByName("uuid")
+
+	// Get file data
 	photoData, _ := ioutil.ReadFile("../pkg/tmp/" + uuid)
 	mimeType := http.DetectContentType(photoData)
 
@@ -136,14 +161,21 @@ func GetPhotoData(c *gin.Context) {
 
 }
 
+// Get photos by roll ID
 func GetPhotosByRollId(c *gin.Context) {
+
+	// Get roll ID from request
 	rollIdParams := c.Params.ByName("roll_id")
+
+	// Parse ID
 	rollId, err := strconv.ParseInt(rollIdParams, 0, 0)
 	if err != nil {
 		log.Println("[STRCONV]: GetPhotosByRollId: Could not parse roll id: ", err)
 		utils.ApiError(c, [][]string{{"resource.notFound", utils.GetEnvVar("ERROR_RESOURCE_NOT_FOUND")}}, 404)
 		return
 	}
+
+	// Get photos from DB
 	photos, err := models.GetPhotosByRollId(rollId)
 	if err != nil {
 		log.Println("[SQL]: ", err)
@@ -153,14 +185,21 @@ func GetPhotosByRollId(c *gin.Context) {
 	utils.ApiSuccess(c, [][]string{}, photos, 200)
 }
 
+// Get photos by album ID
 func GetPhotosByAlbumId(c *gin.Context) {
+
+	// Get album ID from request
 	albumIdParams := c.Params.ByName("album_id")
+
+	// Parse ID
 	albumId, err := strconv.ParseInt(albumIdParams, 0, 0)
 	if err != nil {
 		log.Println("[STRCONV]: GetPhotosByAlbumId: Could not parse album id: ", err)
 		utils.ApiError(c, [][]string{{"resource.notFound", utils.GetEnvVar("ERROR_RESOURCE_NOT_FOUND")}}, 404)
 		return
 	}
+
+	// Get photos from DB
 	photos, err := models.GetPhotosByAlbumId(albumId)
 	if err != nil {
 		log.Println("[SQL]: ", err)
@@ -170,26 +209,39 @@ func GetPhotosByAlbumId(c *gin.Context) {
 	utils.ApiSuccess(c, [][]string{}, photos, 200)
 }
 
+// Update photo
 func UpdatePhoto(c *gin.Context) {
+
+	// Initialize new photo
 	updatedPhoto := &models.Photo{}
+
+	// Bind values to new photo
 	if err := c.ShouldBindJSON(updatedPhoto); err != nil {
 		log.Println("[JSON PARSING]: UpdatePhoto: Could not map required fields")
 		utils.ApiError(c, [][]string{{"bad.request", utils.GetEnvVar("ERROR_CODE_BODY_INVALID")}}, 400)
 		return
 	}
+
+	// Get ID from request
 	photoIdParam := c.Params.ByName("photo_id")
+
+	// Parse ID
 	photoId, err := strconv.ParseInt(photoIdParam, 0, 0)
 	if err != nil {
 		log.Println("[STRCONV]: UpdatePhoto: Could not parse Photo id: ", err)
 		utils.ApiError(c, [][]string{{"resource.notFound", utils.GetEnvVar("ERROR_RESOURCE_NOT_FOUND")}}, 404)
 		return
 	}
+
+	// Get current photo from DB
 	currentPhoto, err := models.GetPhotoById(photoId)
 	if err != nil {
 		log.Println("[SQL]: ", err)
 		utils.ApiError(c, [][]string{{"resource.notFound", utils.GetEnvVar("ERROR_RESOURCE_NOT_FOUND")}}, 404)
 		return
 	}
+
+	// Detect updated values
 	if updatedPhoto.Title != "" {
 		currentPhoto.Title = updatedPhoto.Title
 	}
@@ -208,6 +260,8 @@ func UpdatePhoto(c *gin.Context) {
 		}
 		currentPhoto.Roll_id = updatedPhoto.Roll_id
 	}
+
+	// Update photo in DB
 	p, _ := currentPhoto.UpdatePhoto()
 	if err != nil {
 		log.Println("[SQL]: ", err)
@@ -217,25 +271,36 @@ func UpdatePhoto(c *gin.Context) {
 	utils.ApiSuccess(c, [][]string{}, p, 200)
 }
 
+// Delete photo
 func DeletePhoto(c *gin.Context) {
+
+	// Get photo ID from request
 	photoIdParam := c.Params.ByName("photo_id")
+
+	// Parse ID
 	photoId, err := strconv.ParseInt(photoIdParam, 0, 0)
 	if err != nil {
 		log.Println("[STRCONV]: DeletePhoto: Could not parse filmRoll id: ", err)
 		utils.ApiError(c, [][]string{{"resource.notFound", utils.GetEnvVar("ERROR_RESOURCE_NOT_FOUND")}}, 404)
 		return
 	}
+
+	// Get photo from DB
 	photo, err := models.GetPhotoById(photoId)
 	if err != nil {
 		log.Println("[SQL]: ", err)
 		utils.ApiError(c, [][]string{{"resource.notFound", utils.GetEnvVar("ERROR_RESOURCE_NOT_FOUND")}}, 404)
 		return
 	}
+
+	// Remove file
 	errr := os.Remove("../pkg/tmp/" + photo.UUID)
 	if errr != nil {
 		fmt.Println("DeletePhoto: Could not delete Photo from Server")
 		return
 	}
+
+	// Delete photo from DB
 	photo, er := models.DeletePhoto(photoId)
 	if er != nil {
 		log.Println("[SQL]: ", err)

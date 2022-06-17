@@ -9,14 +9,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Create filmroll
 func CreateFilmRoll(c *gin.Context) {
+
+	// Initialize new filmroll
 	newFilmRoll := &models.FilmRoll{}
+
+	// Bind values to filmroll
 	if err := c.ShouldBindJSON(newFilmRoll); err != nil {
 		log.Println("[JSON PARSING]: CreateFilmRoll: Could not map required fields")
 		utils.ApiError(c, [][]string{{"bad.request", utils.GetEnvVar("ERROR_CODE_BODY_INVALID")}}, 400)
 		return
 	}
 	
+	// Create filmroll in DB
 	fr, err := newFilmRoll.CreateRollType()
 	if err != nil {
 		log.Println("[SQL]: ", err)
@@ -26,7 +32,10 @@ func CreateFilmRoll(c *gin.Context) {
 	utils.ApiSuccess(c, [][]string{}, fr, 200)
 }
 
+// Get filmrolls
 func GetFilmRoll(c *gin.Context) {
+
+	// Get filmrolls from DB
 	filmRoll, err := models.GetFilmRoll()
 	if err != nil {
 		log.Println("[SQL]: ", err)
@@ -36,14 +45,21 @@ func GetFilmRoll(c *gin.Context) {
 	utils.ApiSuccess(c, [][]string{}, filmRoll, 200)
 }
 
+// Get filmroll by ID
 func GetFilmRollById(c *gin.Context) {
+
+	// Get ID from request
 	rollIdParam := c.Params.ByName("rollId")
+
+	// Parse ID
 	rollId, err := strconv.ParseInt(rollIdParam, 0, 0)
 	if err != nil {
 		log.Println("[STRCONV]: GetFilmRollById: Could not parse filmRoll id: ", err)
 		utils.ApiError(c, [][]string{{"resource.notFound", utils.GetEnvVar("ERROR_RESOURCE_NOT_FOUND")}}, 404)
 		return
 	}
+
+	// Get filmroll from DB
 	roll, err := models.GetFilmRollById(rollId)
 	if err != nil {
 		log.Println("[SQL]: ", err)
@@ -53,26 +69,39 @@ func GetFilmRollById(c *gin.Context) {
 	utils.ApiSuccess(c, [][]string{}, roll, 200)
 }
 
+// Update filmroll
 func UpdateFilmRoll(c *gin.Context) {
+
+	// Initialize new filmroll
 	updatedFilmRoll := &models.FilmRoll{}
+
+	// Bind values to new filmroll
 	if err := c.ShouldBindJSON(updatedFilmRoll); err != nil {
 		log.Println("[JSON PARSING]: UpdateFilmRoll: Could not map required fields")
 		utils.ApiError(c, [][]string{{"bad.request", utils.GetEnvVar("ERROR_CODE_BODY_INVALID")}}, 400)
 		return
 	}
+
+	// Get ID from filmroll
 	rollIdParam := c.Params.ByName("rollId")
+
+	// Parse ID
 	rollId, err := strconv.ParseInt(rollIdParam, 0, 0)
 	if err != nil {
 		log.Println("[STRCONV]: UpdateFilmRoll: Could not parse filmRoll id: ", err)
 		utils.ApiError(c, [][]string{{"resource.notFound", utils.GetEnvVar("ERROR_RESOURCE_NOT_FOUND")}}, 404)
 		return
 	}
+
+	// Get current filmroll
 	currentFilmRoll, err := models.GetFilmRollById(rollId)
 	if err != nil {
 		log.Println("[SQL]: ", err)
 		utils.ApiError(c, [][]string{{"resource.notFound", utils.GetEnvVar("ERROR_RESOURCE_NOT_FOUND")}}, 404)
 		return
 	}
+
+	// Detect updated values
 	if updatedFilmRoll.Title != "" {
 		currentFilmRoll.Title = updatedFilmRoll.Title
 	}
@@ -91,6 +120,8 @@ func UpdateFilmRoll(c *gin.Context) {
 		}
 		currentFilmRoll.Type_id = updatedFilmRoll.Type_id
 	}
+
+	// Update filmroll in DB
 	fr, _ := currentFilmRoll.UpdateFilmRoll()
 	if err != nil {
 		log.Println("[SQL]: ", err)
@@ -100,14 +131,21 @@ func UpdateFilmRoll(c *gin.Context) {
 	utils.ApiSuccess(c, [][]string{}, fr, 200)
 }
 
+// Delete filmroll
 func DeleteFilmRoll(c *gin.Context) {
+
+	// Get ID from request
 	rollIdParam := c.Params.ByName("rollId")
+
+	// Parse ID
 	rollId, err := strconv.ParseInt(rollIdParam, 0, 0)
 	if err != nil {
 		log.Println("[STRCONV]: DeleteFilmRoll: Could not parse filmRoll id: ", err)
 		utils.ApiError(c, [][]string{{"resource.notFound", utils.GetEnvVar("ERROR_RESOURCE_NOT_FOUND")}}, 404)
 		return
 	}
+
+	// Delete filmroll in DB
 	roll, err := models.DeleteFilmRoll(rollId)
 	if err != nil {
 		log.Println("[SQL]: ", err)

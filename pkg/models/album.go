@@ -20,6 +20,20 @@ type PA struct {
 	Photo_id   string  `json:"photoId"`
 }
 
+func (fr *Album) CreateAlbum() (*Album, error) {
+	res, err := db.Exec("INSERT INTO albums (title, text) VALUES(?, ?);", fr.Title, fr.Description)
+	if err != nil {
+		return nil, fmt.Errorf("CreateAlbum: %v", err)
+	}
+	var id int64
+	if id, err = res.LastInsertId(); err != nil {
+		return nil, fmt.Errorf("CreateAlbum: %v", err)
+	}
+	fr.Album_id = int(id)
+	fr.Rating = 0
+	return fr, nil
+}
+
 func GetAlbum() ([]Album, error) {
 	var albumse = []Album{}
 	rows, err := db.Query("SELECT albums.album_id, albums.title, albums.text, albums.rating FROM albums;")
