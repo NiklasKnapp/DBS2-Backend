@@ -16,6 +16,7 @@ func CreateFilmRoll(c *gin.Context) {
 		utils.ApiError(c, [][]string{{"bad.request", utils.GetEnvVar("ERROR_CODE_BODY_INVALID")}}, 400)
 		return
 	}
+	
 	fr, err := newFilmRoll.CreateRollType()
 	if err != nil {
 		log.Println("[SQL]: ", err)

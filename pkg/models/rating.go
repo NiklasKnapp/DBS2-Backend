@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"strconv"
+	"log"
 )
 
 type Rating struct {
@@ -25,7 +26,7 @@ func (r *RatingRaw) CreateRating() (*Rating, error) {
 	if photo_id == nil {
 		return nil, fmt.Errorf("CreateRating: Photo with photo id %v does not exist", newRating.Photo_id)
 	}
-	res, err := db.Exec("INSERT INTO ratings (photo_id, rating) VALUES (?, ?);", "", newRating.Photo_id, newRating.Rating)
+	res, err := db.Exec("INSERT INTO ratings (photo_id, rating) VALUES (?, ?);", newRating.Photo_id, newRating.Rating)
 	if err != nil {
 		return nil, fmt.Errorf("CreateRating: %v", err)
 	}
