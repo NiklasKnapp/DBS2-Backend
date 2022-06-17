@@ -101,6 +101,26 @@ func GetPhotosByRollId(rId int64) ([]Photo, error) {
 	return photos, nil
 }
 
+func GetPhotosByAlbumId(rId int64) ([]Photo, error) {
+	var photos = []Photo{}
+	rows, err := db.Query("SELECT p.photo_id, p.title, p.uuid, p.roll_id, p.rating FROM photos p INNER JOIN photos_albums a ON p.photo_id = a.photo_id WHERE a.album_id = ?;", rId)
+	if err != nil {
+		return nil, fmt.Errorf("GetPhotosByAlbumId: %v", err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var importetPhotos Photo
+		if err := rows.Scan(&importetPhotos.Photo_id, &importetPhotos.Title, &importetPhotos.UUID, &importetPhotos.Roll_id, &importetPhotos.Rating); err != nil {
+			return nil, fmt.Errorf("GetPhotosByAlbumId: %v", err)
+		}
+		photos = append(photos, importetPhotos)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("GetPhotosByAlbumId: %v", err)
+	}
+	return photos, nil
+}
+
 func GetPhotoById(pId int64) (*Photo, error) {
 	photo := &Photo{}
 	if err := db.QueryRow("SELECT photo_id, title, uuid, roll_id, rating FROM photos WHERE photo_id = ?;", pId).Scan(&photo.Photo_id, &photo.Title, &photo.UUID, &photo.Roll_id, &photo.Rating); err != nil {

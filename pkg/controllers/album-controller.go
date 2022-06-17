@@ -32,8 +32,6 @@ func GetAlbum(c *gin.Context) {
 
 func GetAlbumById(c *gin.Context) {
 	albumIdParam := c.Params.ByName("albumId")
-	log.Println("test")
-	log.Println(albumIdParam)
 	albumId, err := strconv.ParseInt(albumIdParam, 0, 0)
 	if err != nil {
 		log.Println("[STRCONV]: GetAlbumById: Could not parse album id: ", err)

@@ -7,7 +7,7 @@ import (
 )
 
 type Album struct {
-	Album_id     int     `json:"albumId"`
+	Album_id    int     `json:"albumId"`
 	Title       string  `json:"title" binding:"required"`
 	Description string  `json:"description"`
 	Rating      float32 `json:"rating"`
@@ -55,7 +55,6 @@ func GetAlbum() ([]Album, error) {
 }
 
 func GetAlbumById2(rId int64) (*Album, error) {
-	log.Println(rId)
 	album := &Album{}
 	if err := db.QueryRow("SELECT album_id, title, text, rating FROM albums WHERE album_id = ?;", rId).Scan(&album.Album_id, &album.Title, &album.Description, &album.Rating); err != nil {
 		return nil, fmt.Errorf("GetAlbumById: %v", err)
@@ -91,6 +90,7 @@ func (fr *PA) CreatePA() (*PA, error) {
 	if album_id == nil {
 		return nil, fmt.Errorf("CreatePA: Album with album_id %v does not exist", fr.Album_id)
 	}
+	log.Println(p)
 	_, err := db.Exec("INSERT INTO photos_albums (photo_id, album_id) VALUES(?, ?);", fr.Photo_id, fr.Album_id)
 	if err != nil {
 		return nil, fmt.Errorf("CreatePA: %v", err)
