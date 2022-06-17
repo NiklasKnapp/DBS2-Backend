@@ -2,6 +2,8 @@ package models
 
 import (
 	"fmt"
+	"strconv"
+	"log"
 )
 
 type Album struct {
@@ -14,8 +16,8 @@ type Album struct {
 }
 
 type PA struct {
-	Album_id   int  `json:"albumId"`
-	Photo_id   int  `json:"photoId`
+	Album_id   string  `json:"albumId"`
+	Photo_id   string  `json:"photoId"`
 }
 
 func GetAlbum() ([]Album, error) {
@@ -52,9 +54,10 @@ func GetAlbum() ([]Album, error) {
 	return albumse, nil
 }
 
-func GetAlbumById(rId int64) (*Album, error) {
+func GetAlbumById2(rId int64) (*Album, error) {
+	log.Println(rId)
 	album := &Album{}
-	if err := db.QueryRow("SELECT album_id, title, text, type_id, rating FROM albums WHERE album_id = ?;", rId).Scan(&album.Album_id, &album.Title, &album.Description, &album.Rating); err != nil {
+	if err := db.QueryRow("SELECT album_id, title, text, rating FROM albums WHERE album_id = ?;", rId).Scan(&album.Album_id, &album.Title, &album.Description, &album.Rating); err != nil {
 		return nil, fmt.Errorf("GetAlbumById: %v", err)
 	}
 	return album, nil
@@ -69,7 +72,7 @@ func (fr *Album) UpdateAlbum() (*Album, error) {
 }
 
 func DeleteAlbum(rId int64) (*Album, error) {
-	album, _ := GetAlbumById(rId)
+	album, _ := GetAlbumById2(rId)
 	_, err := db.Exec("DELETE FROM albums WHERE album_id = ?;", rId)
 	if err != nil {
 		return nil, fmt.Errorf("DeleteAlbum: %v", err)
@@ -78,11 +81,13 @@ func DeleteAlbum(rId int64) (*Album, error) {
 }
 
 func (fr *PA) CreatePA() (*PA, error) {
-	photo_id, _ := GetPhotoById(int64(fr.Photo_id))
+	p, _ :=strconv.Atoi(fr.Photo_id)
+	photo_id, _ := GetPhotoById(int64(p))
 	if photo_id == nil {
 		return nil, fmt.Errorf("CreatePA: Photo with photo_id %v does not exist", fr.Photo_id)
 	}
-	album_id, _ := GetAlbumById(int64(fr.Album_id))
+	a, _ := strconv.Atoi(fr.Album_id)
+	album_id, _ := GetAlbumById2(int64(a))
 	if album_id == nil {
 		return nil, fmt.Errorf("CreatePA: Album with album_id %v does not exist", fr.Album_id)
 	}

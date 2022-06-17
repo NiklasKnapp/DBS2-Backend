@@ -32,13 +32,15 @@ func GetAlbum(c *gin.Context) {
 
 func GetAlbumById(c *gin.Context) {
 	albumIdParam := c.Params.ByName("albumId")
+	log.Println("test")
+	log.Println(albumIdParam)
 	albumId, err := strconv.ParseInt(albumIdParam, 0, 0)
 	if err != nil {
 		log.Println("[STRCONV]: GetAlbumById: Could not parse album id: ", err)
 		utils.ApiError(c, [][]string{{"resource.notFound", utils.GetEnvVar("ERROR_RESOURCE_NOT_FOUND")}}, 404)
 		return
 	}
-	album, err := models.GetAlbumById(albumId)
+	album, err := models.GetAlbumById2(albumId)
 	if err != nil {
 		log.Println("[SQL]: ", err)
 		utils.ApiError(c, [][]string{{"resource.notFound", utils.GetEnvVar("ERROR_RESOURCE_NOT_FOUND")}}, 404)
@@ -61,7 +63,7 @@ func UpdateAlbum(c *gin.Context) {
 		utils.ApiError(c, [][]string{{"resource.notFound", utils.GetEnvVar("ERROR_RESOURCE_NOT_FOUND")}}, 404)
 		return
 	}
-	currentAlbum, err := models.GetAlbumById(albumId)
+	currentAlbum, err := models.GetAlbumById2(albumId)
 	if err != nil {
 		log.Println("[SQL]: ", err)
 		utils.ApiError(c, [][]string{{"resource.notFound", utils.GetEnvVar("ERROR_RESOURCE_NOT_FOUND")}}, 404)
@@ -103,9 +105,10 @@ func DeleteAlbum(c *gin.Context) {
 }
 
 func Photos_Album(c *gin.Context) {
+
 	newpa := &models.PA{}
 	if err := c.ShouldBindJSON(newpa); err != nil {
-		log.Println("[JSON PARSING]: CreateAlbum: Could not map required fields")
+		log.Println("[JSON PARSING]: Photos_Album: Could not map required fields")
 		utils.ApiError(c, [][]string{{"bad.request", utils.GetEnvVar("ERROR_CODE_BODY_INVALID")}}, 400)
 		return
 	}

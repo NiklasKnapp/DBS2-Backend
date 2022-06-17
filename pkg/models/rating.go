@@ -3,7 +3,6 @@ package models
 import (
 	"fmt"
 	"strconv"
-	"log"
 )
 
 type Rating struct {
