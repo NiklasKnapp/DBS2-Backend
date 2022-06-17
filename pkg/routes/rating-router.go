@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Routes involving Ratings
 var RegisterRatingRoutes = func(router *gin.Engine) {
 	router.POST("/rating/", controllers.CreateRating)
 	router.GET("/rating/", controllers.GetRating)

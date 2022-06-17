@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Routes involving roll types
 var RegisterRollTypeRoutes = func(router *gin.Engine) {
 	router.POST("/rolltype/", controllers.CreateRollType)
 	router.GET("/rolltype/", controllers.GetRollType)

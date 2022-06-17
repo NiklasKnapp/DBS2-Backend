@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Routes involving photos
 var RegisterPhotoRoutes = func(router *gin.Engine) {
 	router.POST("/photo/", controllers.CreatePhoto)
 	router.GET("/photo/", controllers.GetPhoto)

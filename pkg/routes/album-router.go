@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Routes involving albums
 var RegisterAlbumRoutes = func(router *gin.Engine) {
 	router.POST("/album/", controllers.CreateAlbum)
 	router.GET("/album/", controllers.GetAlbum)

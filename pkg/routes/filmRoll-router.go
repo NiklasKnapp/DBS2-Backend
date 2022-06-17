@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Routes involving filmrolls
 var RegisterFilmRollRoutes = func(router *gin.Engine) {
 	router.POST("/filmroll/", controllers.CreateFilmRoll)
 	router.GET("/filmroll/", controllers.GetFilmRoll)

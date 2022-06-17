@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Template for succesfull API response
 func ApiSuccess[T any](c *gin.Context, message [][]string, result T, statuscode int) {
 	convertedMessage := []models.Message{}
 
@@ -32,6 +33,7 @@ func ApiSuccess[T any](c *gin.Context, message [][]string, result T, statuscode 
 	c.JSON(statuscode, apiSuccess)
 }
 
+// API error response
 func ApiError(c *gin.Context, errors [][]string, statusCode int) {
 	convertedMessage := []models.Message{}
 

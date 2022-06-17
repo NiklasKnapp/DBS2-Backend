@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Routes involving manufacturers
 var RegisterManufacturerRoutes = func(router *gin.Engine) {
 	router.POST("/manufacturer/", controllers.CreateManufacturer)
 	router.GET("/manufacturer/", controllers.GetManufacturer)
