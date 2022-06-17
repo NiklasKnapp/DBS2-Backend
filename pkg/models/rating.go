@@ -5,30 +5,40 @@ import (
 	"strconv"
 )
 
+// Rating
 type Rating struct {
 	Rating_id   int `json:"ratingId"`
 	Photo_id    int `json:"photoId"`
 	Rating      int `json:"rating"`
 }
 
+// Rating as plain text
 type RatingRaw struct {
 	Photo_id    string `json:"photoId"`
 	Rating      string `json:"rating"`
 }
 
+// Create rating in DB
 func (r *RatingRaw) CreateRating() (*Rating, error) {
+
+	// Initialize new rating
 	newRating := &Rating{}
 	newRating.Photo_id, _ = strconv.Atoi(r.Photo_id)
 	newRating.Rating, _ = strconv.Atoi(r.Rating)
 
+	// Check for existing photo
 	photo_id, _ := GetPhotoById(int64(newRating.Photo_id))
 	if photo_id == nil {
 		return nil, fmt.Errorf("CreateRating: Photo with photo id %v does not exist", newRating.Photo_id)
 	}
+
+	// Run query
 	res, err := db.Exec("INSERT INTO ratings (photo_id, rating) VALUES (?, ?);", newRating.Photo_id, newRating.Rating)
 	if err != nil {
 		return nil, fmt.Errorf("CreateRating: %v", err)
 	}
+
+	// Get ID
 	var id int64
 	if id, err = res.LastInsertId(); err != nil {
 		return nil, fmt.Errorf("CreateRating: %v", err)
@@ -38,13 +48,20 @@ func (r *RatingRaw) CreateRating() (*Rating, error) {
 	return newRating, nil
 }
 
+// Get ratings from DB
 func GetRating() ([]Rating, error) {
+
+	// List of ratings
 	var Ratings = []Rating{}
+
+	// Run query
 	rows, err := db.Query("SELECT rating_id, photo_id, rating FROM ratings;")
 	if err != nil {
 		return nil, fmt.Errorf("GetRating: %v", err)
 	}
 	defer rows.Close()
+
+	// Extract values
 	for rows.Next() {
 		var ratings Rating
 		if err := rows.Scan(&ratings.Rating_id, &ratings.Photo_id, &ratings.Rating); err != nil {
@@ -58,6 +75,7 @@ func GetRating() ([]Rating, error) {
 	return Ratings, nil
 }
 
+// Get rating by ID from DB
 func GetRatingById(rId int64) (*Rating, error) {
 	rating := &Rating{}
 	if err := db.QueryRow("SELECT rating_id, photo_id, rating FROM ratings WHERE rating_id = ?;", rId).Scan(&rating.Rating_id, &rating.Photo_id, &rating.Rating); err != nil {
@@ -66,6 +84,7 @@ func GetRatingById(rId int64) (*Rating, error) {
 	return rating, nil
 }
 
+// Update rating in DB
 func (fr *Rating) UpdateRating() (*Rating, error) {
 	_, err := db.Exec("UPDATE ratings SET rating = ?, photoId = ? WHERE rating_id = ?;", fr.Rating, fr.Photo_id, fr.Rating_id)
 	if err != nil {
@@ -74,6 +93,7 @@ func (fr *Rating) UpdateRating() (*Rating, error) {
 	return fr, nil
 }
 
+// Delete rating in DB
 func DeleteRating(rId int64) (*Rating, error) {
 	rating, _ := GetRatingById(rId)
 	_, err := db.Exec("DELETE FROM ratings WHERE rating_id = ?;", rId)
