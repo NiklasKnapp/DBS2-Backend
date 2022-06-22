@@ -28,7 +28,7 @@ func (m *Manufacturer) CreateManufacturer() (*Manufacturer, error) {
 	return m, nil
 }
 
-Get manufacturers from DB
+//Get manufacturers from DB
 func GetManufacturer() ([]Manufacturer, error) {
 
 	// List of manufacturers

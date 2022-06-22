@@ -86,7 +86,7 @@ func GetFilmRoll() ([]FilmRoll, error) {
 	return filmRolls, nil
 }
 
-Get film roll by ID from DB
+//Get film roll by ID from DB
 func GetFilmRollById(rId int64) (*FilmRoll, error) {
 	roll := &FilmRoll{}
 	if err := db.QueryRow("SELECT roll_id, title, text, type_id, rating FROM film_rolls WHERE roll_id = ?;", rId).Scan(&roll.Roll_id, &roll.Title, &roll.Description, &roll.Type_id, &roll.Rating); err != nil {

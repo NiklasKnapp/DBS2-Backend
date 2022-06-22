@@ -3,7 +3,6 @@ package models
 import (
 	"fmt"
 	"strconv"
-	"log"
 )
 
 // Album
@@ -115,7 +114,7 @@ func DeleteAlbum(rId int64) (*Album, error) {
 	return album, nil
 }
 
-Create Link photo album in DB
+//Create Link photo album in DB
 func (fr *PA) CreatePA() (*PA, error) {
 
 	// Check for existing photo
